@@ -10,6 +10,7 @@ import Movies from './pages/Movies'
 import TVShows from './pages/TVShows'
 import UserLiked from './pages/UserLiked'
 import WatchPartyRoom from './pages/WatchPartyRoom'
+import WatchParty from './pages/WatchParty'
 
 
 
@@ -26,7 +27,8 @@ function App() {
         <Route path='/movies' element={<Movies />} />
         <Route path='/tv' element={<TVShows />} />
         <Route path='/watchlist' element={<UserLiked />} />
-        <Route path='/party' element={<WatchPartyRoom />} />
+       
+        <Route path='/watchparty' element={<WatchParty />} />
       </Routes>
 
 

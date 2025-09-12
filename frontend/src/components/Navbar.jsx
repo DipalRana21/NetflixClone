@@ -16,6 +16,7 @@ const Navbar = ({ isScrolled , forceBlack = false}) => {
         { name: "TV Shows", link: "/tv" },
         { name: "Movies", link: "/movies" },
         { name: "Watchlist", link: "/watchlist" },
+        { name: "Watch Party", link: "/watchparty" },
     ];
 
     onAuthStateChanged(firebaseAuth, (currentUser) => {
