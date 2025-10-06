@@ -9,7 +9,6 @@ import Player from './pages/Player'
 import Movies from './pages/Movies'
 import TVShows from './pages/TVShows'
 import UserLiked from './pages/UserLiked'
-import WatchPartyRoom from './pages/WatchPartyRoom'
 import WatchParty from './pages/WatchParty'
 
 
@@ -27,8 +26,8 @@ function App() {
         <Route path='/movies' element={<Movies />} />
         <Route path='/tv' element={<TVShows />} />
         <Route path='/watchlist' element={<UserLiked />} />
-       
-        <Route path='/watchparty' element={<WatchParty />} />
+
+        <Route path='/watchparty/:roomId' element={<WatchParty />} />
       </Routes>
 
 
@@ -36,7 +35,7 @@ function App() {
 
     </BrowserRouter>
 
-    
+
   )
 }
 

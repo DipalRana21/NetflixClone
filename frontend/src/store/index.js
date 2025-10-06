@@ -46,25 +46,53 @@ const getRawData = async(api,genres,paging)=>{
      return moviesArray;
 }
 
+// export const fetchMovies = createAsyncThunk("netflix/trending",
+//     async({type}, thunkApi)=>{
+//         const {
+//             netflix: {genres},
+//         } = thunkApi.getState();
+    
+
+//     return getRawData(`${TMDB_BASE_URL}/trending/${type}/week?api_key=${API_KEY}`, genres,true);
+// })
+
+// This is the UPDATED code
 export const fetchMovies = createAsyncThunk("netflix/trending",
     async({type}, thunkApi)=>{
         const {
             netflix: {genres},
         } = thunkApi.getState();
-    
 
-    return getRawData(`${TMDB_BASE_URL}/trending/${type}/week?api_key=${API_KEY}`, genres,true);
+    // FIX: Convert "movies" to "movie" for the API call
+    const mediaType = type === "movies" ? "movie" : "tv";
+    
+    return getRawData(`${TMDB_BASE_URL}/trending/${mediaType}/week?api_key=${API_KEY}`, genres,true);
 })
 
 
+// export const fetchDataByGenre = createAsyncThunk("netflix/moviesByGenres",
+//     async({genre,type}, thunkApi)=>{
+//         const {
+//             netflix: {genres},
+//         } = thunkApi.getState();
+    
+
+//     return getRawData(`${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
+//         genres,
+//         );
+// })
+
+// This is the UPDATED code
 export const fetchDataByGenre = createAsyncThunk("netflix/moviesByGenres",
     async({genre,type}, thunkApi)=>{
         const {
             netflix: {genres},
         } = thunkApi.getState();
-    
 
-    return getRawData(`${TMDB_BASE_URL}/discover/${type}?api_key=${API_KEY}&with_genres=${genre}`,
+    // FIX: Convert "movies" to "movie" for the API call
+    const mediaType = type === "movies" ? "movie" : "tv";
+    
+    return getRawData(`${TMDB_BASE_URL}/discover/${mediaType}?api_key=${API_KEY}&with_genres=${genre}`,
         genres,
         );
 })

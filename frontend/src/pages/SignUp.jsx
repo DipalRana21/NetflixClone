@@ -65,6 +65,7 @@ const SignUp = () => {
                   name="password"
                   value={formValues.password}
               onChange={(e)=>setFormValues({...formValues, [e.target.name]:e.target.value})}
+              onKeyDown={(e) => e.key === 'Enter' && handleSignIn()}
                   className="text-black border border-black p-6 text-lg focus:outline-none" />
               ) : (
                 <button onClick={() => setShowPassword(true)} className="p-2 bg-[#e50914] text-white font-bold text-lg">Get Started</button>
