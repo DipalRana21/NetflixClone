@@ -28,6 +28,7 @@ array.forEach((movie)=>{
             name:movie?.original_name ? movie.original_name : movie.original_title,
             image:movie.backdrop_path,
             genres: movieGenres.slice(0,3),
+            media_type: movie.media_type,
         })
     }
 })
@@ -57,16 +58,28 @@ const getRawData = async(api,genres,paging)=>{
 // })
 
 // This is the UPDATED code
-export const fetchMovies = createAsyncThunk("netflix/trending",
-    async({type}, thunkApi)=>{
-        const {
-            netflix: {genres},
-        } = thunkApi.getState();
+// export const fetchMovies = createAsyncThunk("netflix/trending",
+//     async({type}, thunkApi)=>{
+//         const {
+//             netflix: {genres},
+//         } = thunkApi.getState();
 
-    // FIX: Convert "movies" to "movie" for the API call
-    const mediaType = type === "movies" ? "movie" : "tv";
+//     // FIX: Convert "movies" to "movie" for the API call
+//     const mediaType = type === "movies" ? "movie" : "tv";
     
-    return getRawData(`${TMDB_BASE_URL}/trending/${mediaType}/week?api_key=${API_KEY}`, genres,true);
+//     return getRawData(`${TMDB_BASE_URL}/trending/${mediaType}/week?api_key=${API_KEY}`, genres,true);
+// })
+
+export const fetchMovies = createAsyncThunk("netflix/trending",
+    async({type}, thunkApi)=>{
+        const {
+            netflix: {genres},
+        } = thunkApi.getState();
+
+    // UPDATED FIX: This now correctly handles "all", "movie", and "tv"
+    const mediaType = type === "movies" ? "movie" : type === "tv" ? "tv" : "all";
+    
+    return getRawData(`${TMDB_BASE_URL}/trending/${mediaType}/week?api_key=${API_KEY}`, genres,true);
 })
 
 
