@@ -71,47 +71,60 @@
 // export default Card;
 
 
-//  temp 
+//imp
+
 
 // import React, { useState } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 // import HoverPreview from "./HoverPreview";
-// import { io } from "socket.io-client";
+// import { socket } from "../utils/socket"; // Import our shared socket
 
-// const SOCKET_SERVER = "http://localhost:5000";
+// const API_KEY = "880cba2b766de6617e34ec7cc1e58294"; 
 
-// const Card = ({ movieData, isLiked = false, selectMode, roomId }) => {
+// const Card = ({ movieData, isLiked = false }) => {
 //   const [isHovered, setIsHovered] = useState(false);
 //   const [hoverPosition, setHoverPosition] = useState({ top: 0, left: 0 });
 //   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const params = new URLSearchParams(location.search);
+//   const selectMode = params.get("selectMode");
+//   const roomId = params.get("roomId");
 
 //   const handleMouseEnter = (e) => {
 //     const rect = e.currentTarget.getBoundingClientRect();
-//     setHoverPosition({ top: rect.top - 90, left: rect.left });
+//     setHoverPosition({ top: rect.top - 50, left: rect.left - 50 }); 
 //     setIsHovered(true);
 //   };
 
-// const handleClick = () => {
-//   if (selectMode && roomId) {
-//     const socket = io(SOCKET_SERVER, { transports: ["websocket"] });
-
-//     const videoUrl =
-//       movieData.trailerLink ||
-//       movieData.video ||
-//       "https://www.w3schools.com/html/mov_bbb.mp4";
-
-//     // Emit selected video to the room
-//     socket.emit("select-video", { roomId, url: videoUrl });
-//     socket.disconnect();
-
-//     // ✅ Stay in WatchParty instead of Player
-//     navigate(`/watchparty?roomId=${roomId}`);
-//   } else {
-//     // Normal flow outside of watch party
-//     navigate("/player", { state: { id: movieData.id } });
-//   }
-// };
-
+//   const handleClick = () => {
+//     if (selectMode && roomId) {
+//       // DO NOT create a new socket here. Use the imported one.
+      
+//       fetch(`https://api.themoviedb.org/3/movie/${movieData.id}/videos?api_key=${API_KEY}`)
+//         .then(res => res.json())
+//         .then(data => {
+//           const trailer = data.results.find(vid => vid.type === "Trailer" && vid.site === "YouTube") || data.results[0];
+//           if (trailer && trailer.key) {
+//             const videoUrl = `https://www.youtube.com/watch?v=${trailer.key}`;
+            
+//             // Use the shared socket to emit the event
+//             socket.emit("select-video", { roomId, url: videoUrl });
+            
+//             // DO NOT disconnect the socket here.
+//             navigate(`/watchparty/${roomId}`);
+//           } else {
+//             alert("No trailer found for this movie.");
+//           }
+//         })
+//         .catch(err => {
+//             console.error("Error fetching trailer for watch party:", err);
+//             alert("Could not fetch video for this movie.");
+//         });
+//     } else {
+//       navigate("/player", { state: { id: movieData.id } });
+//     }
+//   };
 
 //   return (
 //     <div
@@ -131,6 +144,7 @@
 //           isLiked={isLiked}
 //           position={hoverPosition}
 //           onClose={() => setIsHovered(false)}
+        
 //         />
 //       )}
 //     </div>
@@ -143,7 +157,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HoverPreview from "./HoverPreview";
-import { socket } from "../utils/socket"; // Import our shared socket
+import { socket } from "../utils/socket"; 
 
 const API_KEY = "880cba2b766de6617e34ec7cc1e58294"; 
 
@@ -163,21 +177,20 @@ const Card = ({ movieData, isLiked = false }) => {
     setIsHovered(true);
   };
 
+  // This function now handles clicks ONLY on the image,
+  // when the card is not hovered.
   const handleClick = () => {
+    const mediaType = movieData.media_type || "movie";
+
     if (selectMode && roomId) {
-      // DO NOT create a new socket here. Use the imported one.
-      
-      fetch(`https://api.themoviedb.org/3/movie/${movieData.id}/videos?api_key=${API_KEY}`)
+      // Watch party selection logic
+      fetch(`https://api.themoviedb.org/3/${mediaType}/${movieData.id}/videos?api_key=${API_KEY}`)
         .then(res => res.json())
         .then(data => {
           const trailer = data.results.find(vid => vid.type === "Trailer" && vid.site === "YouTube") || data.results[0];
           if (trailer && trailer.key) {
             const videoUrl = `https://www.youtube.com/watch?v=${trailer.key}`;
-            
-            // Use the shared socket to emit the event
             socket.emit("select-video", { roomId, url: videoUrl });
-            
-            // DO NOT disconnect the socket here.
             navigate(`/watchparty/${roomId}`);
           } else {
             alert("No trailer found for this movie.");
@@ -188,7 +201,8 @@ const Card = ({ movieData, isLiked = false }) => {
             alert("Could not fetch video for this movie.");
         });
     } else {
-      navigate("/player", { state: { id: movieData.id } });
+      // Normal play logic
+      navigate("/player", { state: { id: movieData.id, type: mediaType } });
     }
   };
 
@@ -197,12 +211,13 @@ const Card = ({ movieData, isLiked = false }) => {
       className="relative w-[220px] flex-shrink-0 cursor-pointer"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
+      // onClick has been removed from this parent div
     >
       <img
         src={`https://image.tmdb.org/t/p/w500${movieData.image}`}
         alt="movie"
         className="w-full h-full rounded"
+        onClick={handleClick} // The click is now only on the image
       />
       {isHovered && (
         <HoverPreview
@@ -210,6 +225,9 @@ const Card = ({ movieData, isLiked = false }) => {
           isLiked={isLiked}
           position={hoverPosition}
           onClose={() => setIsHovered(false)}
+          // Pass the crucial watch party info to the preview
+          selectMode={selectMode}
+          roomId={roomId}
         />
       )}
     </div>
